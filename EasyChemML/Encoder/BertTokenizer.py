@@ -66,7 +66,7 @@ class BertTokenizer:
                 raise Exception(f'a column with the name {new_columnName_ids} already exist')
 
             dataTypHolder[new_columnName_ids] = BatchDatatypClass.NUMPY_INT32
-            dataTypHolder[new_columnName_ids].set_shape((100,))
+            dataTypHolder[new_columnName_ids].set_shape((max_length,))
             dataTypHolder[new_columnName_tokens] = BatchDatatypClass.PYTHON_OBJECT
 
         for batch in iterator:
