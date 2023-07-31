@@ -9,54 +9,45 @@ from pathlib import Path
 from EasyChemML.JobSystem.CheckpointSystem.CheckpointSystem import CheckpointSystem
 
 
-def check_relativePath(path: str) -> bool:
-    return not os.path.isabs(path)
-
-
-class Environment:
+class Environment():
     TMP_path: str
     WORKING_path: str
     CHECKPOINT_path: str
 
     CheckpointSystem: CheckpointSystem
 
-    def __init__(self, WORKING_path: str = None, TMP_path: str = None, CHECKPOINT_path: str = None):
-        if WORKING_path is None:
-            self.WORKING_path = self._generate_WORKING_path()
-        else:
-            self.WORKING_path = WORKING_path
-
+    def __init__(self, TMP_path_addRelativ: str = None, WORKING_path_addRelativ: str = None, CHECKPOINT_path:str = None,
+                 TMP_path: str = None, WORKING_path: str = None):
         if TMP_path is None:
             self.TMP_path = self._generate_TMP_path()
         else:
             self.TMP_path = TMP_path
+
+        if WORKING_path is None:
+            self.WORKING_path = self._generate_WORKING_path()
+        else:
+            self.WORKING_path = WORKING_path
 
         if CHECKPOINT_path is None:
             self.CHECKPOINT_path = self._generate_CHECKPOINT_path()
         else:
             self.CHECKPOINT_path = CHECKPOINT_path
 
-        # Make Paths Absolute
-        if check_relativePath(self.WORKING_path):
-            self.WORKING_path = str(Path(self.WORKING_path).resolve())
+        if TMP_path_addRelativ is not None:
+            self.TMP_path = os.path.join(self.TMP_path, TMP_path_addRelativ)
 
-        if check_relativePath(self.TMP_path):
-            self.TMP_path = str(Path(self.TMP_path).resolve())
-
-        if check_relativePath(self.CHECKPOINT_path):
-            self.CHECKPOINT_path = str(Path(self.CHECKPOINT_path).resolve())
-
-        # Create Folder
-        if not os.path.exists(self.WORKING_path):
-            Path(self.WORKING_path).mkdir(parents=True)
+        if WORKING_path_addRelativ is not None:
+            self.WORKING_path = os.path.join(self.WORKING_path, WORKING_path_addRelativ)
 
         if not os.path.exists(self.TMP_path):
-            Path(self.TMP_path).mkdir(parents=True)
+            os.mkdir(self.TMP_path)
+
+        if not os.path.exists(self.WORKING_path):
+            os.mkdir(self.WORKING_path)
 
         if not os.path.exists(self.CHECKPOINT_path):
-            Path(self.CHECKPOINT_path).mkdir(parents=True)
+            os.mkdir(self.CHECKPOINT_path)
 
-        # Prepare Environment
         self._createLogging()
         self._changeCPUAffinity()
         self.CheckpointSystem = CheckpointSystem(self)
@@ -97,8 +88,8 @@ class Environment:
         print('####################################################################################')
 
     def _generate_TMP_path(self):
-        program_path, file = os.path.split(sys.argv[0])
-        tmp_path = os.path.join(program_path, 'TMP')
+        programm_path, file = os.path.split(sys.argv[0])
+        tmp_path = os.path.join(programm_path, 'TMP')
 
         if os.path.exists(tmp_path):
             print('remove TMP')
@@ -115,24 +106,8 @@ class Environment:
         return tmp_path
 
     def _generate_WORKING_path(self):
-        program_path, file = os.path.split(sys.argv[0])
-        return os.path.join(program_path)
+        programm_path, file = os.path.split(sys.argv[0])
+        return os.path.join(programm_path)
 
     def _generate_CHECKPOINT_path(self):
-        program_path, file = os.path.split(sys.argv[0])
-        checkpoint_path = os.path.join(program_path, 'Checkpoints')
-        return checkpoint_path
-
-
-class EasyProjectEnvironment(Environment):
-
-    def __init__(self, projectFolder_path: str):
-        projectFolder_path = Path(projectFolder_path);
-        if not projectFolder_path.is_absolute():
-            projectFolder_path = projectFolder_path.resolve()
-
-        workPath = copy.copy(projectFolder_path)
-        tmpPath = copy.copy(workPath).joinpath('TMP')
-        checkpointPath = copy.copy(workPath).joinpath('CHECKPOINT')
-
-        super().__init__(str(workPath), str(tmpPath), str(checkpointPath))
+        return os.path.join(self.WORKING_path, 'Checkpoints')
