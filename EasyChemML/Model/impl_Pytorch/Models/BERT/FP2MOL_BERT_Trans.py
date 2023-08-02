@@ -5,7 +5,17 @@ from torch import device
 from torch.optim import Adam
 from torch.autograd import Variable
 from EasyChemML.Model.impl_Pytorch.Models.BERT.__BERT_Transformer_nn import BERT_Transformer_nn
+from EasyChemML.Model.impl_Pytorch.Models.BERT.decoding_strategies import greedy_decod,beam_decod_run, beam_decod_batch
 
+class Fit_eval_return:
+    loss = None
+    outputs = None
+    tok_prob = None
+
+    def __init__(self, loss=None, outputs=None, tok_prob=None):
+        self.tok_prob = tok_prob
+        self.loss = loss
+        self.outputs = outputs
 
 class FP2MOL_Bert:
     __model: BERT_Transformer_nn
@@ -18,11 +28,16 @@ class FP2MOL_Bert:
         self.__device = torch.device(torch_device)
         self.__model.to(self.__device)
         self.__optimiser = torch.optim.Adam(self.__model.parameters(), lr=0.0001, betas=(0.9, 0.98), eps=1e-9)
+        self.__max_seq_len = max_seq_len
 
     def init_internal_parameters(self):
         for p in self.__model.parameters():
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
+
+    def load_model_parameters(self, p_path):
+        learned_parameters = torch.load(p_path, map_location=self.__device)
+        self.__model.load_state_dict(learned_parameters)
 
     def create_masks(self, src, trg_input):
         input_seq = src
@@ -67,8 +82,36 @@ class FP2MOL_Bert:
     def get_optimiser(self):
         return self.__optimiser
 
-    def fit_eval(self):
-        pass
+    def fit_eval(self, x: np.ndarray, y: np.ndarray, method ='greedy'):
+        self.__model.eval()
+
+        # x = torch.LongTensor(x).to(self.__device)
+        # y = torch.LongTensor(y).to(self.__device)
+
+        targets = y[:, 1:].contiguous().view(-1)
+        if method == 'greedy':
+            preds, outputs, tok_prob = greedy_decod(self.__model, x, self.__max_seq_len, self.__device)
+            loss = torch.nn.functional.cross_entropy(preds.view(-1, preds.size(-1)), targets)
+            returnClass = Fit_eval_return(outputs=outputs, tok_prob=tok_prob, loss=loss)
+
+        elif method == 'beam_search_single':
+            preds, outputs, tok_prob = beam_decod_run(self.__model, x, self.__max_seq_len, self.__device)
+            returnClass = Fit_eval_return(outputs=outputs, tok_prob=tok_prob)
+
+        elif method == 'bit_scamble':
+            preds, outputs, tok_prob = greedy_decod(self.__model, x, self.__max_seq_len, self.__device)
+            returnClass = Fit_eval_return(outputs=outputs, tok_prob=tok_prob)
+
+        elif method == 'Prediction':
+            preds, outputs, tok_prob = greedy_decod(self.__model, x, self.__max_seq_len, self.__device)
+            returnClass = Fit_eval_return(outputs=outputs, tok_prob=tok_prob)
+
+        else:
+            preds, outputs, tok_prob = beam_decod_batch(self.__model, x, self.__max_seq_len, self.__device)
+            returnClass = Fit_eval_return(outputs=outputs, tok_prob=tok_prob)
+
+        return returnClass
+
 
     def save_model(self, p_fname, o_fname):
         torch.save(self.__model.state_dict(), p_fname)

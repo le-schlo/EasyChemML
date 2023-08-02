@@ -1,7 +1,8 @@
 import re
 
 from typing import Dict, List, Tuple
-
+import torch
+import numpy as np
 from rdkit import Chem
 from tokenizers import Tokenizer
 from tokenizers.models import WordPiece
@@ -115,7 +116,19 @@ vocab_BERT_RXN = [
     , "%12"
     , "%13"
     , "[P]"
-    , "[BH4-]"]
+    , "[BH4-]"
+    ]
+
+stereo_vocab=[
+    "[C@H]"
+    , "[C@@H]"
+    , "[C@]"
+    , "[C@@]"
+    , "/"
+    , "//"
+    , "\ ".replace(' ','')
+    , r"\\"
+    ]
 
 vocab_BERT_floats=[
     "_0{-1}",
@@ -180,7 +193,7 @@ vocab_BERT_floats=[
     "_9{-6}",
 ]
 
-vocab_BERT_RXN = vocab_BERT_RXN + vocab_BERT_floats
+vocab_BERT_RXN = vocab_BERT_RXN + vocab_BERT_floats# + stereo_vocab
 
 SMI_REGEX_PATTERN = r"""(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|(?:_\d{..})|(?:_\d{.})|\.|=|#|-|\+|\\|\/|:|~|@|\?|>>?|\*|\$|\%[0-9]{2}|[0-9])"""
 
@@ -243,3 +256,38 @@ class SmilesTokenzier():
 
     def decode(self, seq: List[int]) -> List[str]:
         return self.bert_tokenizer.decode(seq)
+
+    def decode_ids_to_tokens(self, ID_output: torch.Tensor):
+
+        ID_output = np.array(ID_output.cpu())
+        decoded = self.decode(ID_output)
+        notokens = decoded.replace('[CLS]', '').replace('[SEP]', '').replace('[PAD]', '').strip().replace(' ', '')
+
+        splited_notokens = self._splitSMILES(notokens)
+
+        return splited_notokens
+
+    def decode_tokens_to_seperate_outputs(self, output_tokens: List):
+
+        smistring = ''
+        list_of_properties = []
+        prev_tok = ''
+        for tok in output_tokens:
+            if '_' not in tok:
+                smistring += tok
+                if '_' in prev_tok:
+                    list_of_properties.append(float(atomic_prop))
+            if '_' in tok:
+                if '_' not in prev_tok:
+                    atomic_prop = 0
+                power_tp = re.search(r"\{([A-Za-z0-9_-]+)\}", tok)
+                atomic_prop += int(tok[1]) * 10 ** (int(power_tp.group(1)))
+
+            prev_tok = tok
+
+
+        return smistring, list_of_properties
+
+    def decode_atomic_prop(self, ID_output: torch.Tensor):
+        out_tokens = self.decode_ids_to_tokens(ID_output)
+        return self.decode_tokens_to_seperate_outputs(out_tokens)
