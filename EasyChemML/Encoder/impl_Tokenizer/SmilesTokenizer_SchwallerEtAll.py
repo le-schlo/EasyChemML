@@ -193,7 +193,7 @@ vocab_BERT_floats=[
     "_9{-6}",
 ]
 
-vocab_BERT_RXN = vocab_BERT_RXN + vocab_BERT_floats + stereo_vocab
+vocab_BERT_RXN = vocab_BERT_RXN + stereo_vocab + vocab_BERT_floats
 
 SMI_REGEX_PATTERN = r"""(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|(?:_\d{..})|(?:_\d{.})|\.|=|#|-|\+|\\|\/|:|~|@|\?|>>?|\*|\$|\%[0-9]{2}|[0-9])"""
 
