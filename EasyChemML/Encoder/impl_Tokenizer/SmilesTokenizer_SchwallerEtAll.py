@@ -141,7 +141,7 @@ vocab_spin_population_bins = [
 
 vocab_BERT_RXN = vocab_BERT_RXN + vocab_spin_population_bins
 
-SMI_REGEX_PATTERN = r"""(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|(?:_\d{..})|(?:_\d{.})|\.|=|#|-|\+|\\|\/|:|~|@|\?|>>?|\*|\$|\%[0-9]{2}|[0-9])"""
+SMI_REGEX_PATTERN = r"""(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|_0_|_1_|_2_|_3_|_4_|_5_|\.|=|#|-|\+|\\|\/|:|~|@|\?|>>?|\*|\$|\%[0-9]{2}|[0-9])"""
 
 class NotCanonicalizableSmilesException(ValueError):
     pass
