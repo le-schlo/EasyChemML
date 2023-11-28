@@ -192,8 +192,42 @@ vocab_BERT_floats=[
     "_8{-6}",
     "_9{-6}",
 ]
+vocab_spins = ["_0_"
+    , "_1_"
+    , "_2_"
+    , "_3_"
+    , "_4_"
+    , "_5_"
+    , "_6_"
+    , "_7_"
+    , "_8_"
+    , "_9_"
+    , "_10_"
+    , "_11_"
+    , "_11_"
+    , "_12_"
+    , "_13_"
+    , "_14_"
+    , "_15_"
+    , "_16_"
+    , "_17_"
+    , "_18_"
+    , "_19_"
+    , "_20_"
+    , "_21_"
+    , "_22_"
+    , "_23_"
+    , "_24_"
+    , "_25_"
+    , "_26_"
+    , "_27_"
+    , "_28_"
+    , "_29_"
+]
 
-vocab_BERT_RXN = vocab_BERT_RXN + stereo_vocab + vocab_BERT_floats[0:30]
+vocab_BERT_RXN = vocab_BERT_RXN + vocab_spins
+
+#vocab_BERT_RXN = vocab_BERT_RXN + stereo_vocab + vocab_BERT_floats[0:30]
 
 SMI_REGEX_PATTERN = r"""(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|(?:_\d{..})|(?:_\d{.})|\.|=|#|-|\+|\\|\/|:|~|@|\?|>>?|\*|\$|\%[0-9]{2}|[0-9])"""
 
