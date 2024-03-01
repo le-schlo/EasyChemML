@@ -196,7 +196,8 @@ else:
         'pytest',
         'xarray',
         'xlrd==1.2.0',
-        'openpyxl'
+        'openpyxl',
+        'scipy==1.9'
     ]
 
 #init_pyx_files = [f for f in glob.glob(path+'/**/__init__.py', recursive=True)]
