@@ -228,7 +228,7 @@ class SmilesTokenzier():
         return self.decode_tokens_to_seperate_outputs(out_tokens)
 
 
-    def getSmilesfromoutputwithSD(self, ID_output: torch.Tensor):
+    def getSmilesfromoutputwithSD(self, ID_output: torch.Tensor) -> Tuple[str, str, np.ndarray]:
         ID_output = np.array(ID_output.cpu())
         decoded = self.decode(ID_output)
         notokens = decoded.replace('[CLS]', '').replace('[SEP]', '').replace('[PAD]', '').strip().replace(' ', '')
@@ -243,6 +243,5 @@ class SmilesTokenzier():
                 smistring += tok
             if '_' in tok:
                 DensityArray.append(int(tok.strip('_')))
-            densitystring += toks
-
-        return smistring, densitystring, np.array(DensityArray)
+            densitystring += tok
+    return smistring, densitystring, np.array(DensityArray)
