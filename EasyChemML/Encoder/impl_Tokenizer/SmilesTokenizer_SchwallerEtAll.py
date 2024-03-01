@@ -119,17 +119,6 @@ vocab_BERT_RXN = [
     , "[BH4-]"
     ]
 
-stereo_vocab=[
-    "[C@H]"
-    , "[C@@H]"
-    , "[C@]"
-    , "[C@@]"
-    , "/"
-    , "//"
-    , "\ ".replace(' ','')
-    , r"\\"
-    ]
-
 vocab_spin_population_bins = [
       "_0_"
     , "_1_"
