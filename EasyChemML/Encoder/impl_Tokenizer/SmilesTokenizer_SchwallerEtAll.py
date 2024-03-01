@@ -230,20 +230,20 @@ class SmilesTokenzier():
 
     def getSmilesfromoutputwithSD(self, ID_output: torch.Tensor) -> Tuple[str, str, np.ndarray]:
 
-    ID_output = np.array(ID_output.cpu())
-    decoded = self.decode(ID_output)
-    notokens = decoded.replace('[CLS]', '').replace('[SEP]', '').replace('[PAD]', '').strip().replace(' ', '')
+        ID_output = np.array(ID_output.cpu())
+        decoded = self.decode(ID_output)
+        notokens = decoded.replace('[CLS]', '').replace('[SEP]', '').replace('[PAD]', '').strip().replace(' ', '')
 
-    splited_notokens = self._splitSMILES(notokens)
+        splited_notokens = self._splitSMILES(notokens)
 
-    smistring = ''
-    densitystring = ''
-    DensityArray = []
-    for tok in splited_notokens:
-        if '_' not in tok:
-            smistring += tok
-        if '_' in tok:
-            DensityArray.append(int(tok.strip('_')))
-        densitystring += tok
+        smistring = ''
+        densitystring = ''
+        DensityArray = []
+        for tok in splited_notokens:
+            if '_' not in tok:
+                smistring += tok
+            if '_' in tok:
+                DensityArray.append(int(tok.strip('_')))
+            densitystring += tok
 
     return smistring, densitystring, np.array(DensityArray)
