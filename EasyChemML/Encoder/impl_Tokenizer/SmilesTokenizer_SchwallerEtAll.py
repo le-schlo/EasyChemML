@@ -244,6 +244,6 @@ class SmilesTokenzier():
                 smistring += tok
             if '_' in tok:
                 DensityArray.append(int(tok.strip('_')))
-            densitystring += tok
+            densitystring += toks
 
-    return smistring, densitystring, np.array(DensityArray)
+        return smistring, densitystring, np.array(DensityArray)
